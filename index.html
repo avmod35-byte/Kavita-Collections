@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kavita Collections | Boutique</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #fff; color: #111; overflow-x: hidden; }
+
+        /* Header */
+        header { padding: 15px; border-bottom: 1px solid #eee; position: sticky; top: 0; background: white; z-index: 100; display: flex; flex-direction: column; align-items: center; }
+        .brand-name { font-size: 1.4rem; font-weight: bold; letter-spacing: 3px; margin-bottom: 10px; color: #000; text-transform: uppercase; }
+        .search-container { width: 100%; position: relative; display: flex; align-items: center; }
+        .search-bar { width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 25px; background: #f8f8f8; outline: none; }
+        .cart-btn-top { margin-left: 10px; font-size: 20px; cursor: pointer; background: none; border: none; position: relative; }
+        .cart-count { position: absolute; top: -5px; right: -5px; background: #d63384; color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; }
+
+        /* Floating WhatsApp Button */
+        .float-wa {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 20px;
+            right: 20px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+        .float-wa:hover { transform: scale(1.1); }
+
+        /* Grid & Cards */
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; }
+        .product-card { cursor: pointer; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; transition: 0.3s; }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-image { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+        .product-info { padding: 10px; }
+        .product-name { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+        .product-price { font-size: 0.85rem; color: #d63384; margin-top: 4px; font-weight: bold; }
+        
+        .featured-badge { position: absolute; top: 10px; left: 10px; background: #d63384; color: white; font-size: 10px; font-weight: bold; padding: 4px 10px; border-radius: 20px; z-index: 5; }
+
+        /* Modal & Cart */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); }
+        .modal-content { background: white; width: 90%; max-width: 400px; margin: 15% auto; padding: 20px; border-radius: 20px; text-align: center; position: relative; }
+        .close { position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer; color: #999; }
+        .modal-img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
+
+        .cart-sidebar { position: fixed; right: -300px; top: 0; width: 280px; height: 100%; background: white; z-index: 1100; transition: 0.3s; padding: 20px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
+        .cart-sidebar.active { right: 0; }
+        .cart-items-list { flex-grow: 1; margin-top: 20px; overflow-y: auto; }
+        .cart-item { padding: 12px 0; border-bottom: 1px solid #eee; font-size: 13px; display: flex; justify-content: space-between; }
+
+        .btn { display: block; width: 100%; padding: 14px; margin-top: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none; }
+        .btn-cart { background: #111; color: white; }
+        .btn-wa { background: #25d366; color: white; margin-top: 15px; }
+        .btn-clear { background: #f8f8f8; color: #ff4444; border: 1px solid #eee; font-size: 0.9rem; }
+
+        /* Scroll Animation */
+        .reveal { position: relative; transform: translateY(30px); opacity: 0; transition: 0.8s all ease; }
+        .reveal.active { transform: translateY(0); opacity: 1; }
+
+        footer { text-align: center; padding: 40px 20px; color: #bbb; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+    <a href="https://wa.me/918828060929?text=Hi! I have a question about your collection." class="float-wa" target="_blank">💬</a>
+
+    <header>
+        <div class="brand-name">Kavita Collections</div>
+        <div class="search-container">
+            <input type="text" class="search-bar" id="searchInput" placeholder="Search sarees..." onkeyup="filterItems()">
+            <button class="cart-btn-top" onclick="toggleCart()">🛒<span class="cart-count" id="count">0</span></button>
+        </div>
+    </header>
+
+    <div class="product-grid" id="productGrid">
+        <div class="product-card reveal" onclick="openProduct('Premium Collection 1', '₹999', 'PASTE_LINK_1_HERE')">
+            <div class="featured-badge">BESTSELLER</div>
+            <img src="PASTE_LINK_1_HERE" class="product-image" alt="Saree">
+            <div class="product-info">
+                <p class="product-name">Premium Collection 1</p>
+                <p class="product-price">₹999</p>
+            </div>
+        </div>
+        <div class="product-card reveal" onclick="openProduct('Premium Collection 2', '₹999', 'PASTE_LINK_2_HERE')">
+            <img src="PASTE_LINK_2_HERE" class="product-image" alt="Saree">
+            <div class="product-info">
+                <p class="product-name">Premium Collection 2</p>
+                <p class="product-price">₹999</p>
+            </div>
+        </div>
+        <div class="product-card reveal" onclick="openProduct('Premium Collection 3', '₹999', 'PASTE_LINK_3_HERE')">
+            <img src="PASTE_LINK_3_HERE" class="product-image" alt="Saree">
+            <div class="product-info">
+                <p class="product-name">Premium Collection 3</p>
+                <p class="product-price">₹999</p>
+            </div>
+        </div>
+        <div class="product-card reveal" onclick="openProduct('Premium Collection 4', '₹999', 'PASTE_LINK_4_HERE')">
+            <img src="PASTE_LINK_4_HERE" class="product-image" alt="Saree">
+            <div class="product-info">
+                <p class="product-name">Premium Collection 4</p>
+                <p class="product-price">₹999</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeProduct()">×</span>
+            <img id="modalImg" src="" class="modal-img">
+            <h2 id="modalName"></h2>
+            <p id="modalPrice" style="color: #d63384; font-size: 1.2rem; font-weight: bold; margin: 10px 0;"></p>
+            <button class="btn btn-cart" onclick="addToCartFromModal()">Add to Cart</button>
+            <a id="waLink" href="#" class="btn btn-wa" target="_blank">Order via WhatsApp</a>
+        </div>
+    </div>
+
+    <div id="cartSidebar" class="cart-sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="font-size: 1.2rem;">Your Cart</h2>
+            <span style="cursor:pointer; font-size:24px; color:#999;" onclick="toggleCart()">×</span>
+        </div>
+        <div id="cartList" class="cart-items-list">
+            <p>Your cart is empty</p>
+        </div>
+        <div style="padding-top: 15px; border-top: 1px solid #eee;">
+            <button class="btn btn-cart" onclick="checkout()">Place Order</button>
+            <button class="btn btn-clear" onclick="clearCart()">Clear All Items</button>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        let currentItem = {};
+
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                if (elementTop < windowHeight - 150) { reveals[i].classList.add("active"); }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        window.onload = reveal;
+
+        function openProduct(name, price, img) {
+            currentItem = { name, price, img };
+            document.getElementById('modalName').innerText = name;
+            document.getElementById('modalPrice').innerText = price;
+            document.getElementById('modalImg').src = img;
+            
+            let phone = "918828060929"; 
+            let message = "Hi Kavita Collections! I want to order " + name + " for " + price;
+            document.getElementById('waLink').href = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
+            
+            document.getElementById('productModal').style.display = "block";
+        }
+
+        function closeProduct() { document.getElementById('productModal').style.display = "none"; }
+
+        function addToCartFromModal() {
+            cart.push({...currentItem});
+            updateCartUI();
+            closeProduct();
+            toggleCart();
+        }
+
+        function clearCart() { if(confirm("Empty your cart?")) { cart = []; updateCartUI(); } }
+
+        function updateCartUI() {
+            document.getElementById('count').innerText = cart.length;
+            const list = document.getElementById('cartList');
+            list.innerHTML = cart.length === 0 ? "<p>Your cart is empty</p>" : "";
+            cart.forEach((item) => {
+                list.innerHTML += `<div class="cart-item"><span>${item.name}</span> <b>${item.price}</b></div>`;
+            });
+        }
+
+        function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); }
+
+        function filterItems() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.getElementsByClassName('product-card');
+            for (let card of cards) {
+                let name = card.querySelector('.product-name').innerText.toLowerCase();
+                card.style.display = name.includes(input) ? "" : "none";
+            }
+        }
+
+        function checkout() {
+            if(cart.length === 0) return alert("Cart is empty!");
+            alert("Order placed! Please screenshot the cart and send it to our WhatsApp.");
+            toggleCart();
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('productModal')) closeProduct();
+        }
+    </script>
+
+    <footer>© 2026 KAVITA COLLECTIONS</footer>
+</body>
+</html>
